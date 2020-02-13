@@ -3,7 +3,7 @@ import json
 from time import time
 from uuid import uuid4
 
-# from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request
 
 
 class Blockchain(object):
@@ -12,7 +12,7 @@ class Blockchain(object):
         self.current_transactions = []
 
         # Create the genesis block
-        self.new_block(proof=0, prev_hash=1)
+        self.new_block(proof=0, prev_hash='lambda')
 
     def new_block(self, proof, prev_hash=None):
         """
@@ -98,10 +98,8 @@ class Blockchain(object):
         proof = 0
         while self.guess_hash(json_block,proof,hard) == False:
             proof += 1
-        
-        print('proof', proof)
 
-        print(hashlib.sha256((json_block + str(proof)).encode("utf-8")).hexdigest())
+        print(f'hash of last block w/ proof {proof}', hashlib.sha256((json_block + str(proof)).encode("utf-8")).hexdigest())
 
         return proof
 
@@ -127,49 +125,50 @@ class Blockchain(object):
 
         return True if hash[:hard] == zeros else False
 
-bc = Blockchain()
-bc.new_block(20)
-print(bc.chain)
 
-bc.proof_of_work(bc.last_block,5)
-
-
-
-
-
-
+# if __name__ == '__main__':
+#     bc = Blockchain()
+#     nonce = bc.proof_of_work(bc.last_block,5)
+#     bc.new_block(nonce)
+#     print(bc.chain)
 
 # # Instantiate our Node
-# app = Flask(__name__)
+app = Flask(__name__)
 
-# # Generate a globally unique address for this node
-# node_identifier = str(uuid4()).replace('-', '')
+# Generate a globally unique address for this node
+node_identifier = str(uuid4()).replace('-', '')
 
-# # Instantiate the Blockchain
-# blockchain = Blockchain()
+# Instantiate the Blockchain
+blockchain = Blockchain()
 
-
-# @app.route('/mine', methods=['GET'])
-# def mine():
-#     # Run the proof of work algorithm to get the next proof
-
-#     # Forge the new Block by adding it to the chain with the proof
-
-#     response = {
-#         # TODO: Send a JSON response with the new block
-#     }
-
-#     return jsonify(response), 200
+# @app.route('/', methods=['GET'])
+# def chain():
+#     return 'Hello World'
 
 
-# @app.route('/chain', methods=['GET'])
-# def full_chain():
-#     response = {
-#         # TODO: Return the chain and its current length
-#     }
-#     return jsonify(response), 200
+@app.route('/mine', methods=['GET'])
+def mine():
+    # Run the proof of work algorithm to get the next proof
+
+    # Forge the new Block by adding it to the chain with the proof
+    nonce = blockchain.proof_of_work(blockchain.last_block)
+    response = blockchain.new_block(nonce)
+    print(response)
+    # response = {
+        
+    # }
+    return jsonify('hello dolly'), 200
 
 
-# # Run the program on port 5000
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=5000)
+@app.route('/chain', methods=['GET'])
+def full_chain():
+    response = {
+        # TODO: Return the chain and its current length
+        'chain' : blockchain.chain
+    }
+    return jsonify(response), 200
+
+
+# Run the program on port 5000
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
