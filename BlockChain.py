@@ -7,7 +7,6 @@ class Blockchain(object):
     def __init__(self):
         self.chain = []
         self.current_transactions = []
-
         self.new_block(proof=0, prev_hash='lambda')
 
     def new_block(self, proof, prev_hash=None):
