@@ -1,6 +1,3 @@
-# Paste your version of blockchain.py from the basic_block_gp
-# folder here
-
 import hashlib
 import json
 from time import time
@@ -10,7 +7,6 @@ class Blockchain(object):
     def __init__(self):
         self.chain = []
         self.current_transactions = []
-
         self.new_block(proof=0, prev_hash='lambda')
 
     def new_block(self, proof, prev_hash=None):
